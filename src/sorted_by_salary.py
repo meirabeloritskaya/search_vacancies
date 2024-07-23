@@ -79,7 +79,11 @@ class VacancyManager:
 
     def fetch_vacancies(self, query: str, salary: int, period: int):
         vacancies_data = self.api.get_vacancies(query, salary, period)
-        self.vacancies = [Vacancy.from_api(vacancy) for vacancy in vacancies_data]
+        self.vacancies = [
+            Vacancy.from_api(vacancy)
+            for vacancy in vacancies_data
+            if vacancy.get("salary", {}).get("from") is not None and vacancy.get("salary", {}).get("from") >= salary
+        ]
 
     def add_vacancy(self, vacancy: Vacancy):
         self.vacancies.append(vacancy)
