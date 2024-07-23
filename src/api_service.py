@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from src.processing_vacancies import Vacancy
 import requests
-from accessify import private
 import os
 from dotenv import load_dotenv
 
@@ -21,41 +19,54 @@ class WebsiteAPI(ABC):
     """абстрактный класс для парсинга вакансий"""
 
     @abstractmethod
-    def get_vacancies(self, required_vacancy, required_salary, required_period):
+    def get_vacancies(self, required_vacancy: str, required_salary: int, required_period: int):
         pass
 
 
 class HeadHunterAPI(WebsiteAPI):
     """получение списка вакансий"""
 
-    def __init__(self, BASE_URL):
+    def __init__(self, base_url: str):
         """получение информации о вакансиях"""
         logger.info("получение информации о вакансиях")
-        self.base_url = BASE_URL
-        # self.vacancies = []
+        self.base_url = base_url
+        self.headers = {"User-Agent": "HH-User-Agent"}
+        self.params = {"per_page": 50, "text": "", "only_with_salary": True, "salary": 0, "period": 0, "page": 0}
+        self.vacancies = []
 
-    def get_vacancies(self, required_vacancy, required_salary, required_period):
+    def get_vacancies(self, required_vacancy: str, required_salary: int, required_period: int):
 
-        params = {
-            "per_page": 50,
-            "text": required_vacancy,
-            "only_with_salary": True,
-            "salary": required_salary,
-            "period": required_period,
-        }
-        response = requests.get(url=self.base_url, params=params)
-        if response.status_code != 200:
-            raise Exception(f"Ошибка запроса к API: Статус {response.status_code}")
+        if not isinstance(required_vacancy, str) or not required_vacancy:
+            return ValueError(f"Данная вакансия  - '{required_vacancy}' - отсутствует")
 
-        vacancies_list = response.json()["items"]
-        return vacancies_list
+        if not isinstance(required_salary, int) or required_salary <= 0:
+            return ValueError("Неверно указана зарплата")
 
-        # self.vacancies = Vacancy.cast_to_object_list(vacancies_list)
+        if not isinstance(required_period, int) or required_period <= 0:
+            return ValueError("Неверно указан период")
+
+        self.params.update({"text": required_vacancy, "salary": required_salary, "period": required_period})
+
+        while self.params.get("page") != 20:
+            try:
+                response = requests.get(url=self.base_url, headers=self.headers, params=self.params)
+                response.raise_for_status()
+            except requests.RequestException as e:
+                logger.error(f"Ошибка запроса к API: {e}")
+                raise
+
+            data = response.json()
+            items = data.get("items", [])
+            self.vacancies.extend(items)  # Добавляем вакансии в список
+            self.params["page"] += 1  # Переходим к следующей странице
+
+        return self.vacancies
 
 
 if __name__ == "__main__":
     load_dotenv()
     MY_BASE_URL = os.getenv("BASE_URL")
+
     hh_api = HeadHunterAPI(MY_BASE_URL)
     hh_vacancies = hh_api.get_vacancies("Python", 100000, 3)
     print(hh_vacancies)
