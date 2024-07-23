@@ -47,7 +47,7 @@ class HeadHunterAPI(WebsiteAPI):
 
         self.params.update({"text": required_vacancy, "salary": required_salary, "period": required_period})
 
-        while self.params.get("page") != 20:
+        while self.params.get("page") < 20:
             try:
                 response = requests.get(url=self.base_url, headers=self.headers, params=self.params)
                 response.raise_for_status()
@@ -57,8 +57,8 @@ class HeadHunterAPI(WebsiteAPI):
 
             data = response.json()
             items = data.get("items", [])
-            self.vacancies.extend(items)  # Добавляем вакансии в список
-            self.params["page"] += 1  # Переходим к следующей странице
+            self.vacancies.extend(items)
+            self.params["page"] += 1
 
         return self.vacancies
 
