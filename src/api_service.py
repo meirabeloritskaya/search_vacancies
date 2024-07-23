@@ -31,7 +31,7 @@ class HeadHunterAPI(WebsiteAPI):
         logger.info("получение информации о вакансиях")
         self.base_url = base_url
         self.headers = {"User-Agent": "HH-User-Agent"}
-        self.params = {"per_page": 50, "text": "", "only_with_salary": True, "salary": 0, "period": 0, "page": 0}
+        self.params = {"per_page": 10, "text": "", "only_with_salary": True, "salary": 0, "period": 0, "page": 0}
         self.vacancies = []
 
     def get_vacancies(self, required_vacancy: str, required_salary: int, required_period: int):
