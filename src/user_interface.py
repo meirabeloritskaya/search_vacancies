@@ -9,12 +9,17 @@ def interface():
 
     manager = VacancyManager(base_url)
     query = input("Введите название вакансии: ")
+    keyword = input("Введите ключевое слово для фильтрации вакансий по описанию: ").strip()
     salary = int(input("Введите желаемую зарплату: "))
     period = int(input("Введите период (в днях): "))
+    top_n = int(input("Введите количество топ вакансий для отображения: "))
 
+    print("_____________")
+    print()
     manager.fetch_vacancies(query, salary, period)
+    manager.display_filtered_vacancies(keyword)
     manager.sort_vacancies_by_salary()
-    manager.display_vacancies()
+    manager.top_vacancies(top_n)
 
 
 if __name__ == "__main__":
