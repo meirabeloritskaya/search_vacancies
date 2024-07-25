@@ -88,9 +88,6 @@ class VacancyManager:
     def add_vacancy(self, vacancy: Vacancy):
         self.vacancies.append(vacancy)
 
-    def sort_vacancies_by_salary(self):
-        self.vacancies.sort(reverse=True)
-
     def vacancies_by_keyword(self, keyword: str):
         """Фильтрует вакансии по ключевому слову в описании."""
         vacancies = [vacancy for vacancy in self.vacancies if keyword.lower() in vacancy.description.lower()]
@@ -101,24 +98,7 @@ class VacancyManager:
         filtered_vacancies = self.vacancies_by_keyword(keyword)
         if not filtered_vacancies:
             print(f"Нет вакансий, содержащих ключевое слово '{keyword}' в описании.")
-        else:
-            for vacancy in filtered_vacancies:
-                print(vacancy)
-                print()
-
-    def top_vacancies(self, n):
-        # while True:                                                           #НЕ РАБОТАЕТ!!!
-        #    try:
-        #         n = int(top_n)
-        #         if n <= 0:
-        #             print("Пожалуйста, введите целое положительное целое число.")
-        #             raise ValueError
-        #             break
-        #    except ValueError:
-        #        print("Пожалуйста, введите целое положительное целое число.")
-
-        top_vacancies = self.vacancies[:n]
-        return top_vacancies
+        return filtered_vacancies
 
 
 if __name__ == "__main__":
@@ -131,14 +111,12 @@ if __name__ == "__main__":
     keyword = input("Введите ключевое слово для фильтрации вакансий по описанию: ").strip()
     salary = int(input("Введите желаемую зарплату: "))
     period = int(input("Введите период (в днях): "))
-    top_n = int(input("Введите количество топ вакансий для отображения: "))
 
     print("_____________")
     print()
     manager.fetch_vacancies(query, salary, period)
-    manager.display_filtered_vacancies(keyword)
-    manager.sort_vacancies_by_salary()
-    top_n_vacancies = manager.top_vacancies(top_n)
-    for vacancy in top_n_vacancies:
+    vacancies = manager.display_filtered_vacancies(keyword)
+
+    for vacancy in vacancies:
         print(vacancy)
         print()
