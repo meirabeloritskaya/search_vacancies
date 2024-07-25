@@ -121,7 +121,6 @@ class VacancyManager:
         return top_vacancies
 
 
-
 if __name__ == "__main__":
 
     load_dotenv()
@@ -141,6 +140,5 @@ if __name__ == "__main__":
     manager.sort_vacancies_by_salary()
     top_n_vacancies = manager.top_vacancies(top_n)
     for vacancy in top_n_vacancies:
-            print(vacancy)
-            print()
-
+        print(vacancy)
+        print()

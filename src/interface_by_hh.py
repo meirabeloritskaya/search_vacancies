@@ -7,7 +7,6 @@ def interface_hh():
     load_dotenv()
     base_url = os.getenv("BASE_URL")
 
-
     manager = VacancyManager(base_url)
 
     query = input("Введите название вакансии: ")
@@ -31,5 +30,6 @@ if __name__ == "__main__":
     if vacancies:  # Проверяем, что список не пустой и не None
         for vacancy in vacancies:
             print(vacancy)
+            print()
     else:
         print("Нет вакансий для отображения.")
