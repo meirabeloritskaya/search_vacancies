@@ -27,19 +27,30 @@ class JsonVacancyStorage(VacancyStorage):
 
     def add_vacancy(self, vacancy):
         with open(self.file_path, "r", encoding="utf-8") as file:
-            vacancies = json.load(file)
+            try:
+                vacancies = json.load(file)
+            except json.JSONDecodeError:
+
+                vacancies = []
+
         vacancies.append(vacancy.__dict__)
         with open(self.file_path, "w", encoding="utf-8") as file:
             json.dump(vacancies, file)
 
     def get_vacancies(self, **criteria):
         with open(self.file_path, "r", encoding="utf-8") as file:
-            vacancies = json.load(file)
-        return [vacancy for vacancy in vacancies if all(vacancy.get(k) == v for k, v in criteria.items())]
+            try:
+                vacancies = json.load(file)
+            except json.JSONDecodeError:
+                vacancies = []
+
+        return [vacancy for vacancy in vacancies if all(vacancy.get(key) == value for key, value in criteria.items())]
 
     def delete_vacancy(self, **criteria):
         with open(self.file_path, "r", encoding="utf-8") as file:
             vacancies = json.load(file)
-        vacancies = [vacancy for vacancy in vacancies if not all(vacancy.get(k) == v for k, v in criteria.items())]
+        rest_vacancies = [
+            vacancy for vacancy in vacancies if not all(vacancy.get(key) == value for key, value in criteria.items())
+        ]
         with open(self.file_path, "w", encoding="utf-8") as file:
-            json.dump(vacancies, file, ensure_ascii=False, indent=4)
+            json.dump(rest_vacancies, file)

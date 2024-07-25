@@ -14,12 +14,12 @@ def main():
 
     while True:
         action = input(
-            "Выберите действие: "
-            "(1) Добавить вакансию "
-            "(2) Получить вакансии "
-            "(3) Сортировать вакансии"
-            "(4) Удалить вакансию "
-            "(0) Выход: "
+            "Выберите действие:\n "
+            "(1) Добавить вакансию \n"
+            "(2) Получить вакансии \n"
+            "(3) Сортировать вакансии\n"
+            "(4) Удалить вакансию\n "
+            "(0) Выход: \n"
         )
         if action == "1":
             vacancies = interface_hh()
@@ -40,20 +40,35 @@ def main():
                 criteria["salary"] = salary_min
 
             filtered_vacancies = storage.get_vacancies(**criteria)
-            print("Фильтрованные вакансии:")
-            for vacancy in filtered_vacancies:
-                print(vacancy)
+            filtered_vacancies = [
+                vacancy for vacancy in filtered_vacancies if not city or vacancy["city"].lower() == city
+            ]
+
+            if not filtered_vacancies:
+                print("Не найдено вакансий по указанным критериям.")
+            else:
+                print("Фильтрованные вакансии:")
+                for vacancy in filtered_vacancies:
+                    print(vacancy)
 
         elif action == "3":
             # Сортировка вакансий
-            sort_by = input("Введите поле для сортировки (например, 'salary'): ")
-            order = input("Введите порядок сортировки (asc/desc): ")
-            ascending = order.lower() == "asc"
+            order = input("Введите порядок сортировки (asc/desc): ").strip().lower()
+            if order not in ["asc", "desc"]:
+                print(
+                    "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
+                )
+                continue
+
+            ascending = order == "asc"
 
             with open(path, "r", encoding="utf-8") as file:
-                vacancies = json.load(file)
+                try:
+                    vacancies = json.load(file)
+                except json.JSONDecodeError:
+                    vacancies = []
 
-            sorted_vacancies = sorted(vacancies, key=lambda x: x.get(sort_by, 0), reverse=not ascending)
+            sorted_vacancies = sorted(vacancies, key=lambda x: x.get("salary", 0), reverse=not ascending)
             print("Отсортированные вакансии:")
             for vacancy in sorted_vacancies:
                 print(vacancy)
@@ -61,12 +76,12 @@ def main():
         elif action == "4":
             # Удаление вакансии
             criteria = {}
-            criterion = input("Удалить по (1) городу (2) зарплате: ")
+            criterion = input("Удалить по (1) городу (2) зарплате: ").strip()
             if criterion == "1":
-                city = input("Введите город для удаления: ")
+                city = input("Введите город для удаления: ").strip().capitalize()
                 criteria["city"] = city
             elif criterion == "2":
-                salary = input("Введите зарплату для удаления: ")
+                salary = input("Введите зарплату для удаления: ").strip()
                 criteria["salary"] = int(salary)
             storage.delete_vacancy(**criteria)
 
