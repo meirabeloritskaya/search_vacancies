@@ -118,9 +118,8 @@ class VacancyManager:
         #        print("Пожалуйста, введите целое положительное целое число.")
 
         top_vacancies = self.vacancies[:n]
-        for vacancy in top_vacancies:
-            print(vacancy)
-            print()
+        return top_vacancies
+
 
 
 if __name__ == "__main__":
@@ -140,4 +139,8 @@ if __name__ == "__main__":
     manager.fetch_vacancies(query, salary, period)
     manager.display_filtered_vacancies(keyword)
     manager.sort_vacancies_by_salary()
-    manager.top_vacancies(top_n)
+    top_n_vacancies = manager.top_vacancies(top_n)
+    for vacancy in top_n_vacancies:
+            print(vacancy)
+            print()
+

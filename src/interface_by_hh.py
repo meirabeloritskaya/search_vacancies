@@ -1,13 +1,15 @@
 import os
 from dotenv import load_dotenv
-from sorted_by_salary import VacancyManager
+from src.vacancy_manager import VacancyManager
 
 
-def interface():
+def interface_hh():
     load_dotenv()
     base_url = os.getenv("BASE_URL")
 
+
     manager = VacancyManager(base_url)
+
     query = input("Введите название вакансии: ")
     keyword = input("Введите ключевое слово для фильтрации вакансий по описанию: ").strip()
     salary = int(input("Введите желаемую зарплату: "))
@@ -19,9 +21,15 @@ def interface():
     manager.fetch_vacancies(query, salary, period)
     manager.display_filtered_vacancies(keyword)
     manager.sort_vacancies_by_salary()
-    manager.top_vacancies(top_n)
+    top_vacancies = manager.top_vacancies(top_n)
+
+    return top_vacancies
 
 
 if __name__ == "__main__":
-
-    interface()
+    vacancies = interface_hh()
+    if vacancies:  # Проверяем, что список не пустой и не None
+        for vacancy in vacancies:
+            print(vacancy)
+    else:
+        print("Нет вакансий для отображения.")
