@@ -20,11 +20,12 @@ def main():
     while True:
         action = input(
             "Выберите действие: \n"
+            "(0) Выход: \n"
             "(1) Добавить вакансию \n"
             "(2) Получить вакансии \n"
             "(3) Сортировать вакансии \n"
-            "(4) Удалить вакансию \n"
-            "(0) Выход: \n"
+            "(4) Вывести топ-n вакансий\n"
+            "(5) Удалить вакансию \n"
         )
         if action == "1":
             vacancies = interface_hh()
@@ -67,14 +68,25 @@ def main():
                 continue
 
             if order == "asc":
-                sorted_vacancies = JsonVacancyStorage.sort_vacancies(vacancies, revers=True)
+                sorted_vacancies_by_salary = storage.sorted_vacancies(False)
             elif order == "desc":
-                sorted_vacancies = JsonVacancyStorage.sort_vacancies(vacancies, revers=False)
+                sorted_vacancies_by_salary = storage.sorted_vacancies(True)
             print("Отсортированные вакансии:")
-            for vacancy in sorted_vacancies:
+            for vacancy in sorted_vacancies_by_salary:
                 print(vacancy)
 
         elif action == "4":
+            n = input("Введите количество топ вакансий: ").strip()
+            try:
+                n = int(n)
+                if n <= 0:
+                    print("Введите положительное целое число")
+                    break
+                vacancies = sorted_vacancies_by_salary[:n]
+            except ValueError:
+                print("Введите положительное целое число")
+
+        elif action == "5":
             # Удаление вакансии
             criteria = {}
             criterion = input("Удалить по (1) городу (2) зарплате: ").strip()

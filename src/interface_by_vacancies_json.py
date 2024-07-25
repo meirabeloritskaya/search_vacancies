@@ -17,7 +17,7 @@ class VacancyStorage(ABC):
         pass
 
     @abstractmethod
-    def sorted_vacancies(self, reverse=False):
+    def sorted_vacancies(self, order):
         pass
 
     @abstractmethod
@@ -50,13 +50,13 @@ class JsonVacancyStorage(VacancyStorage):
         vacancies = self._load_vacancies()
         return [vacancy for vacancy in vacancies if all(vacancy.get(key) == value for key, value in criteria.items())]
 
-    def sorted_vacancies(self, reverse=False):
+    def sorted_vacancies(self, order):
         vacancies = self._load_vacancies()
-        sorted_vacancies = sorted(vacancies, key=lambda x: x.get("salary", 0), reverse=reverse)
+        sorted_vacancies = sorted(vacancies, key=lambda x: x.get("salary", 0), reverse=order)
         return sorted_vacancies
 
     def top_n_vacancies(self, n):
-        sorted_vacancies = self.sorted_vacancies(revers=True)
+        sorted_vacancies = self.sorted_vacancies(reverse=True)
         return sorted_vacancies[:n]
 
     def delete_vacancy(self, **criteria):
