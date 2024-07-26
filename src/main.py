@@ -11,6 +11,7 @@ def main():
     load_dotenv()
 
     storage = JsonVacancyStorage(path)
+    # sorted_vacancies_by_salary = []
     with open(path, "r", encoding="utf-8") as file:
         try:
             vacancies = json.load(file)
@@ -71,34 +72,57 @@ def main():
                 sorted_vacancies_by_salary = storage.sorted_vacancies(False)
             elif order == "desc":
                 sorted_vacancies_by_salary = storage.sorted_vacancies(True)
+            else:
+                print(
+                    "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
+                )
+                continue
+
             print("Отсортированные вакансии:")
             for vacancy in sorted_vacancies_by_salary:
                 print(vacancy)
 
         elif action == "4":
+
             n = input("Введите количество топ вакансий: ").strip()
             try:
                 n = int(n)
                 if n <= 0:
                     print("Введите положительное целое число")
                     break
-                vacancies = sorted_vacancies_by_salary[:n]
+                else:
+                    vacancies = storage.sorted_vacancies(True)[:n]
+                    for vacansy in vacancies:
+                        print(vacansy)
             except ValueError:
                 print("Введите положительное целое число")
 
         elif action == "5":
-            # Удаление вакансии
-            criteria = {}
-            criterion = input("Удалить по (1) городу (2) зарплате: ").strip()
-            if criterion == "1":
-                city = input("Введите город для удаления: ").strip().capitalize()
-                criteria["city"] = city
-            elif criterion == "2":
-                salary = input("Введите зарплату для удаления: ").strip()
-                criteria["salary"] = int(salary)
-                storage.delete_vacancy(**criteria)
+            while True:
+                    # Удаление вакансии
+                    criteria = {}
+                    criterion = input("Удалить по городу (введите цифру 1)\n"
+                                      "Удалить по зарплате (введите цифру 2) \n"
+                                      "Удалить все вакансии (введите цифру 3) :: ").strip()
+                    if criterion == "1":
+                        city = input("Введите город для удаления: ").strip().capitalize()
+                        criteria["city"] = city
+                        storage.delete_vacancy(**criteria)
+                        break
+                    elif criterion == "2":
+                        salary = input("Введите зарплату для удаления: ").strip()
+                        try:
+                            criteria["salary"] = int(salary)
+                            storage.delete_vacancy(**criteria)
+                            break
+                        except ValueError:
+                            print("Некорректный ввод зарплаты. Пожалуйста, введите число.")
+                    elif criterion == "3":
+                        storage.delete_vacancy()  # Передаем пустые критерии для удаления всех вакансий
+                        print("Все вакансии удалены.")
+                        break
             else:
-                print("Некорректный ввод. Пожалуйста, введите 1 или 2.")
+                        print("Некорректный ввод. Пожалуйста, введите 1 или 2.")
 
         elif action == "0":
             break

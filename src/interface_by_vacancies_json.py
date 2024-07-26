@@ -50,9 +50,9 @@ class JsonVacancyStorage(VacancyStorage):
         vacancies = self._load_vacancies()
         return [vacancy for vacancy in vacancies if all(vacancy.get(key) == value for key, value in criteria.items())]
 
-    def sorted_vacancies(self, order):
+    def sorted_vacancies(self, reverse):
         vacancies = self._load_vacancies()
-        sorted_vacancies = sorted(vacancies, key=lambda x: x.get("salary", 0), reverse=order)
+        sorted_vacancies = sorted(vacancies, key=lambda x: x.get("salary", 0), reverse=reverse)
         return sorted_vacancies
 
     def top_n_vacancies(self, n):
