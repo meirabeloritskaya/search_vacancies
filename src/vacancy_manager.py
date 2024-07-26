@@ -123,7 +123,7 @@ class VacancyManager:
 
     def vacancies_by_keyword(self, keyword: str):
         """Фильтрует вакансии по ключевому слову в описании."""
-        logger.info(f"Фильтрация вакансий по ключевому слову: {keyword}"
+        logger.info(f"Фильтрация вакансий по ключевому слову: {keyword}")
         vacancies = [vacancy for vacancy in self.vacancies if keyword.lower() in vacancy.description.lower()]
         return vacancies
 
