@@ -1,6 +1,17 @@
 from src.api_service import HeadHunterAPI
 import os
 from dotenv import load_dotenv
+import logging
+
+
+logger = logging.getLogger(__name__)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+path = os.path.join(BASE_DIR, "logs", "vacancy_manager.log")
+file_handler = logging.FileHandler(path, encoding="utf-8")
+file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
 
 class Vacancy:
@@ -28,6 +39,9 @@ class Vacancy:
 
     @classmethod
     def from_api(cls, vacancy_data):
+        description = vacancy_data.get("snippet", {}).get("requirement", "Не указано")
+        if not isinstance(description, str):
+            description = "Не указано"
 
         return cls(
             name_vacancy=vacancy_data.get("name", ""),
@@ -35,7 +49,7 @@ class Vacancy:
             url=vacancy_data.get("alternate_url", ""),
             salary=vacancy_data.get("salary", {}).get("from", 0),
             currency=vacancy_data.get("salary", {}).get("currency", "Не указано"),
-            description=vacancy_data.get("snippet", {}).get("requirement", "Не указано"),
+            description=description,
         )
 
     def __lt__(self, other):

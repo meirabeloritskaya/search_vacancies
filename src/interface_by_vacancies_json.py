@@ -1,6 +1,17 @@
 from abc import ABC, abstractmethod
 import json
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+path = os.path.join(BASE_DIR, "logs", "interface_by_vacancies_json.log")
+file_handler = logging.FileHandler(path, encoding="utf-8")
+file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
 
 class VacancyStorage(ABC):

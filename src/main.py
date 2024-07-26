@@ -3,6 +3,17 @@ from dotenv import load_dotenv
 from src.interface_by_hh import interface_hh
 from src.interface_by_vacancies_json import JsonVacancyStorage
 import json
+import logging
+
+
+logger = logging.getLogger(__name__)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+path = os.path.join(BASE_DIR, "logs", "main.log")
+file_handler = logging.FileHandler(path, encoding="utf-8")
+file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
 
 def main():
@@ -11,7 +22,6 @@ def main():
     load_dotenv()
 
     storage = JsonVacancyStorage(path)
-    # sorted_vacancies_by_salary = []
     with open(path, "r", encoding="utf-8") as file:
         try:
             vacancies = json.load(file)
@@ -22,12 +32,12 @@ def main():
         action = input(
             "Выберите действие: \n"
             "(0) Выход: \n"
-            "(1) Добавить вакансию \n"
-            "(2) Получить вакансии \n"
-            "(3) Сортировать вакансии \n"
+            "(1) Добавить вакансию в json файл\n"
+            "(2) Получить вакансии из json файла\n"
+            "(3) Вывести сортированный список вакансий\n"
             "(4) Вывести топ-n вакансий\n"
-            "(5) Удалить вакансию \n"
-        )
+            "(5) Удалить вакансию из json файла\n"
+        ).strip()
         if action == "1":
             vacancies = interface_hh()
             for vacancy in vacancies:
@@ -60,27 +70,32 @@ def main():
 
         elif action == "3":
             # Сортировка вакансий
+            while True:
 
-            order = input("Введите порядок сортировки (asc/desc): ").strip().lower()
-            if order not in ["asc", "desc"]:
-                print(
-                    "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
-                )
-                continue
+                order = input("Введите порядок сортировки (asc/desc): ").strip().lower()
+                if order not in ["asc", "desc"]:
+                    print(
+                        "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
+                    )
+                    continue
 
-            if order == "asc":
-                sorted_vacancies_by_salary = storage.sorted_vacancies(False)
-            elif order == "desc":
-                sorted_vacancies_by_salary = storage.sorted_vacancies(True)
-            else:
-                print(
-                    "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
-                )
-                continue
-
-            print("Отсортированные вакансии:")
-            for vacancy in sorted_vacancies_by_salary:
-                print(vacancy)
+                if order == "asc":
+                    sorted_vacancies_by_salary = storage.sorted_vacancies(False)
+                    print("Отсортированные вакансии:")
+                    for vacancy in sorted_vacancies_by_salary:
+                        print(vacancy)
+                    break
+                elif order == "desc":
+                    sorted_vacancies_by_salary = storage.sorted_vacancies(True)
+                    print("Отсортированные вакансии:")
+                    for vacancy in sorted_vacancies_by_salary:
+                        print(vacancy)
+                    break
+                else:
+                    print(
+                        "Ошибка: Пожалуйста, введите 'asc' для сортировки по возрастанию или 'desc' для сортировки по убыванию."
+                    )
+                    continue
 
         elif action == "4":
 
@@ -99,30 +114,36 @@ def main():
 
         elif action == "5":
             while True:
-                    # Удаление вакансии
-                    criteria = {}
-                    criterion = input("Удалить по городу (введите цифру 1)\n"
-                                      "Удалить по зарплате (введите цифру 2) \n"
-                                      "Удалить все вакансии (введите цифру 3) :: ").strip()
-                    if criterion == "1":
-                        city = input("Введите город для удаления: ").strip().capitalize()
-                        criteria["city"] = city
-                        storage.delete_vacancy(**criteria)
+                # Удаление вакансии
+                criteria = {}
+                criterion = input(
+                    "Удалить по городу (введите цифру 1)\n"
+                    "Удалить по зарплате (введите цифру 2) \n"
+                    "Удалить все вакансии (введите цифру 3): "
+                ).strip()
+                if criterion == "1":
+                    city = input("Введите город для удаления: ").strip().capitalize()
+                    criteria["city"] = city
+                    rest_vacancies = storage.delete_vacancy(**criteria)
+                    for vacancy in rest_vacancies:
+                        print(vacancy)
+                    break
+                elif criterion == "2":
+                    salary = input("Введите зарплату для удаления: ").strip()
+                    try:
+                        criteria["salary"] = int(salary)
+                        rest_vacancies = storage.delete_vacancy(**criteria)
+                        for vacancy in rest_vacancies:
+                            print(vacancy)
                         break
-                    elif criterion == "2":
-                        salary = input("Введите зарплату для удаления: ").strip()
-                        try:
-                            criteria["salary"] = int(salary)
-                            storage.delete_vacancy(**criteria)
-                            break
-                        except ValueError:
-                            print("Некорректный ввод зарплаты. Пожалуйста, введите число.")
-                    elif criterion == "3":
-                        storage.delete_vacancy()  # Передаем пустые критерии для удаления всех вакансий
-                        print("Все вакансии удалены.")
-                        break
+                    except ValueError:
+                        print("Некорректный ввод зарплаты. Пожалуйста, введите число.")
+                elif criterion == "3":
+                    storage.delete_vacancy()
+                    print("Все вакансии удалены.")
+                    break
             else:
-                        print("Некорректный ввод. Пожалуйста, введите 1 или 2.")
+                print("Некорректный ввод. Пожалуйста, введите 1 или 2.")
 
         elif action == "0":
             break
