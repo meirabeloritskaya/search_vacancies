@@ -2,7 +2,7 @@ from src.api_service import HeadHunterAPI
 import os
 from dotenv import load_dotenv
 import logging
-
+from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,7 +42,7 @@ class Vacancy:
 
     @classmethod
     def from_api(cls, vacancy_data):
-        """Создает экземпляр Vacancy из данных API"""
+        """Создаем экземпляр Vacancy из данных API"""
 
         description = vacancy_data.get("snippet", {}).get("requirement", "Не указано")
         if not isinstance(description, str):
@@ -98,7 +98,27 @@ class Vacancy:
         return f"{self.name_vacancy} ({self.salary}, {self.currency}): {self.url}\nDescription: {self.description}"
 
 
-class VacancyManager:
+class BaseVacancyManager(ABC):
+    """Абстрактный базовый класс для управления вакансиями"""
+
+    @abstractmethod
+    def fetch_vacancies(self, query: str, salary: int, period: int):
+        pass
+
+    @abstractmethod
+    def add_vacancy(self, vacancy: Vacancy):
+        pass
+
+    @abstractmethod
+    def vacancies_by_keyword(self, keyword: str):
+        pass
+
+    @abstractmethod
+    def display_filtered_vacancies(self, keyword: str):
+        pass
+
+
+class VacancyManager(BaseVacancyManager):
     """Класс для управления вакансиями"""
 
     def __init__(self, base_url: str):
