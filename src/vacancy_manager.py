@@ -16,6 +16,7 @@ logger.setLevel(logging.INFO)
 
 class Vacancy:
     """Класс для представления вакансии"""
+
     def __init__(
         self, name_vacancy: str, city: str, url: str, salary: int = 0, currency: str = "", description: str = ""
     ):
@@ -99,6 +100,7 @@ class Vacancy:
 
 class VacancyManager:
     """Класс для управления вакансиями"""
+
     def __init__(self, base_url: str):
         """Инициализация менеджера вакансий"""
         logger.info("Инициализация VacancyManager с базовым URL")

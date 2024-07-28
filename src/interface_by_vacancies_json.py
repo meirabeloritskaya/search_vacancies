@@ -76,3 +76,4 @@ class JsonVacancyStorage(VacancyStorage):
             vacancy for vacancy in vacancies if not all(vacancy.get(key) == value for key, value in criteria.items())
         ]
         self._save_vacancies(rest_vacancies)
+        return rest_vacancies
