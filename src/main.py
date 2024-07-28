@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from src.interface_by_hh import interface_hh
+from src.interface_by_hh import HHInterface
 from src.interface_by_vacancies_json import JsonVacancyStorage
 import json
 import logging
@@ -39,7 +39,8 @@ def main():
             "(5) Удалить вакансию из json файла\n"
         ).strip()
         if action == "1":
-            vacancies = interface_hh()
+            interface = HHInterface()
+            vacancies = interface.get_data()
             for vacancy in vacancies:
                 storage.add_vacancy(vacancy)
             print("Вакансии добавлены в файл.")

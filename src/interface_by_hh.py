@@ -14,50 +14,68 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
 
-def interface_hh():
-    load_dotenv()
-    base_url = os.getenv("BASE_URL")
+class HHInterface:
+    def __init__(self):
+        """Инициализация класса HHInterface, настройка логирования и загрузка переменных окружения."""
+        load_dotenv()
+        self.base_url = os.getenv("BASE_URL")
+        self.manager = VacancyManager(self.base_url)
+        logger.info("HHInterface инициализирован.")
+    def interface_hh(self):
+        """Запрос параметров поиска вакансий у пользователя и их возврат."""
+        logger.info("Получение ввода пользователя для параметров поиска вакансий.")
 
-    manager = VacancyManager(base_url)
+        while True:
+            query = input("Введите название вакансии: ").strip()
+            if not query:
+                print("Ошибка: Название вакансии не может быть пустым. Пожалуйста, введите корректное значение.")
+                logger.warning("Пользователь ввел пустое название вакансии.")
+            else:
+                break
 
-    while True:
-        query = input("Введите название вакансии: ").strip()
-        if not query:
-            print("Ошибка: Название вакансии не может быть пустым. Пожалуйста, введите корректное значение.")
-        else:
-            break
+        keyword = input("Введите ключевое слово для фильтрации вакансий по описанию (или оставьте пустым): ").strip()
 
-    keyword = input("Введите ключевое слово для фильтрации вакансий по описанию (или оставьте пустым): ").strip()
+        while True:
+            salary_input = input("Введите числом желаемую зарплату: ")
+            if not salary_input.isdigit():
+                print("Ошибка: Зарплата должна быть числом. Пожалуйста, введите корректное значение.")
+                logger.warning(f"Пользователь ввел некорректную зарплату: {salary_input}.")
+            else:
+                salary = int(salary_input)
+                break
 
-    while True:
-        salary_input = input("Введите числом желаемую зарплату: ")
-        if not salary_input.isdigit():
-            print("Ошибка: Зарплата должна быть числом. Пожалуйста, введите корректное значение.")
-        else:
-            salary = int(salary_input)
-            break
+        while True:
+            period_input = input("Введите период (в днях): ")
+            if not period_input.isdigit():
+                print("Ошибка: Период должен быть числом. Пожалуйста, введите корректное значение.")
+                logger.warning(f"Пользователь ввел некорректный период: {period_input}.")
+            else:
+                period = int(period_input)
+                break
+        logger.info("Ввод пользователя успешно получен.")
+        return query, keyword, salary, period
 
-    while True:
-        period_input = input("Введите период (в днях): ")
-        if not period_input.isdigit():
-            print("Ошибка: Период должен быть числом. Пожалуйста, введите корректное значение.")
-        else:
-            period = int(period_input)
-            break
+    def get_data(self):
+        """Запуск интерфейса для получения и отображения вакансий на основе ввода пользователя."""
+        logger.info("Запуск метода run класса HHInterface.")
+        query, keyword, salary, period = self.interface_hh()
 
-    print("_____________")
-    print()
-    manager.fetch_vacancies(query, salary, period)
-    vacancies_hh = manager.display_filtered_vacancies(keyword)
+        print("_____________")
+        print()
+        self.manager.fetch_vacancies(query, salary, period)
+        vacancies_hh = self.manager.display_filtered_vacancies(keyword)
 
-    return vacancies_hh
+        return vacancies_hh
 
 
 if __name__ == "__main__":
-    vacancies = interface_hh()
-    if vacancies:  # Проверяем, что список не пустой и не None
+    interface = HHInterface()
+    vacancies = interface.get_data()
+    if vacancies:
         for vacancy in vacancies:
             print(vacancy)
             print()
+            logger.info("Вакансии успешно отображены.")
     else:
         print("Нет вакансий для отображения.")
+        logger.info("Нет вакансий для отображения.")
