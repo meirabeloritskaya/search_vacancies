@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from src.vacancy_manager import VacancyManager
 import logging
-
+from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,13 +14,24 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.INFO)
 
 
-class HHInterface:
+class BaseInterface(ABC):
+    """Абстрактный базовый класс для взаимодействия с интерфейсами вакансий"""
+
+    @classmethod
+    @abstractmethod
+    def get_data(cls):
+        pass
+
+
+class HHInterface(BaseInterface):
+    """Класс для взаимодействия с интерфейсом HeadHunter"""
+
     def __init__(self):
-        """Инициализация класса HHInterface, настройка логирования и загрузка переменных окружения."""
         load_dotenv()
-        self.base_url = os.getenv("BASE_URL")
-        self.manager = VacancyManager(self.base_url)
+        base_url = os.getenv("BASE_URL")
+        self.manager = VacancyManager(base_url)
         logger.info("HHInterface инициализирован.")
+
     def interface_hh(self):
         """Запрос параметров поиска вакансий у пользователя и их возврат."""
         logger.info("Получение ввода пользователя для параметров поиска вакансий.")
@@ -55,22 +66,23 @@ class HHInterface:
         logger.info("Ввод пользователя успешно получен.")
         return query, keyword, salary, period
 
-    def get_data(self):
+    @classmethod
+    def get_data(cls):
         """Запуск интерфейса для получения и отображения вакансий на основе ввода пользователя."""
         logger.info("Запуск метода run класса HHInterface.")
-        query, keyword, salary, period = self.interface_hh()
+        interface = cls()
+        query, keyword, salary, period = interface.interface_hh()
 
         print("_____________")
         print()
-        self.manager.fetch_vacancies(query, salary, period)
-        vacancies_hh = self.manager.display_filtered_vacancies(keyword)
+        interface.manager.fetch_vacancies(query, salary, period)
+        vacancies_hh = interface.manager.display_filtered_vacancies(keyword)
 
         return vacancies_hh
 
 
 if __name__ == "__main__":
-    interface = HHInterface()
-    vacancies = interface.get_data()
+    vacancies = HHInterface.get_data()
     if vacancies:
         for vacancy in vacancies:
             print(vacancy)

@@ -43,7 +43,7 @@ class VacancyStorage(ABC):
 
 class JsonVacancyStorage(VacancyStorage):
     def __init__(self, file_path):
-        """ Инициализация хранилища вакансий в JSON файле"""
+        """Инициализация хранилища вакансий в JSON файле"""
         self.file_path = file_path
 
         if not os.path.exists(self.file_path):
@@ -73,8 +73,9 @@ class JsonVacancyStorage(VacancyStorage):
     def get_vacancies(self, **criteria):
         """Возвращает список вакансий, удовлетворяющих заданным критериям"""
         vacancies = self._load_vacancies()
-        filtered_vacancies = [vacancy for vacancy in vacancies if
-                              all(vacancy.get(key) == value for key, value in criteria.items())]
+        filtered_vacancies = [
+            vacancy for vacancy in vacancies if all(vacancy.get(key) == value for key, value in criteria.items())
+        ]
         logger.info(f"Найдено {len(filtered_vacancies)} вакансий по критериям: {criteria}")
         return filtered_vacancies
 
@@ -90,7 +91,7 @@ class JsonVacancyStorage(VacancyStorage):
         sorted_vacancies = self.sorted_vacancies(reverse=True)
         top_vacancies = sorted_vacancies[:n]
         logger.info(f"Топ {n} вакансий с наивысшей зарплатой: {top_vacancies}")
-        return  top_vacancies
+        return top_vacancies
 
     def delete_vacancy(self, **criteria):
         """Удаляет вакансии, соответствующие заданным критериям"""
